@@ -1,0 +1,16 @@
+{
+  "name": "konform",
+  "version": "1.0.0",
+  "description": "audio conform backend",
+  "main": "build/classes/kotlin/js/main/konform.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "types": "index.d.ts",
+  "dependencies": {
+    "kotlin": "1.3.31",
+    "rx": "4.1.0"
+  }
+}
