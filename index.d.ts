@@ -141,6 +141,8 @@ export namespace konform {
 
     function indexFromMonoSource(mono: MonoSource, sampleRate: number, onProgress?: (sample: Long) => void): Observable<FastAudioIndex>;
 
+    function indexToBlob(index: FastAudioIndex): Blob ;
+
     export class SampleBuffer {
         public range: SampleRange;
         public samples: Float32Array[];

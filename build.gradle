@@ -49,6 +49,7 @@ kotlin {
             dependencies {
                 implementation kotlin('test')
                 implementation kotlin('test-junit')
+                implementation 'junit:junit:4.12'
             }
         }
         jsMain {

@@ -1,6 +1,8 @@
 package com.vg.audio
 
 import jdk.Math
+import jdk.highestOneBit
+import jdk.numberOfTrailingZeros
 import js.nio.IntBuffer
 import kotlin.js.JsName
 import kotlin.math.abs
@@ -9,8 +11,8 @@ import kotlin.math.min
 class FastAudioIndex {
 
     private val intBuf: IntBuffer
-    private val samplesPerBin: Int
-    private val bins: Int
+    val samplesPerBin: Int
+    val bins: Int
     val indexEntries: List<IndexEntry>
 
     val sampleCount: Long
@@ -103,7 +105,7 @@ fun assertEquals(a: Int, b: Int) {
     if (a != b) throw IllegalStateException("$a != $b")
 }
 
-data class IntByReference(var value: Int)
+class IntByReference(var value: Int)
 
 fun minusad32(
     a1: IntBuffer,
@@ -274,4 +276,35 @@ private fun toNiceString(offset: Long) = "${hmsms(offset / 48)} ($offset)"
 
 private fun histo(matchOffsets: LongArray): List<Pair<Long, Int>> {
     return matchOffsets.groupBy { it }.map { (it.key to it.value.size) }.sortedBy { it.second }
+}
+
+const val samplesPerBin = 4096
+const val cutoffFreq = 4096
+const val bins = 8
+
+private val fft = JTransformsFFT(samplesPerBin)
+
+fun makeIndex(signal: FloatArray, sampleRange: SampleRange, sampleRate: Int): IndexEntry {
+    val fpp = 1f / signal.size * sampleRate
+
+    val highestOneBit = (cutoffFreq / bins).highestOneBit().numberOfTrailingZeros()
+
+    val highscores = FloatArray(bins + 1)
+    val recordPoints = IntArray(bins + 1)
+    val spectrum = fft.spectrum(signal)
+
+    for (i in spectrum.indices) {
+        val mag = spectrum[i]
+        val freq = (fpp * i).toInt()
+        if (freq < 5000) {
+            var bin = freq shr highestOneBit
+            bin = Math.min(bins, bin)
+            if (mag > highscores[bin]) {
+                highscores[bin] = mag
+                recordPoints[bin] = freq
+            }
+        }
+    }
+    val idx = IndexEntry(sampleRange, highscores, recordPoints)
+    return idx
 }

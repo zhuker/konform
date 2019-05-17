@@ -1,23 +1,15 @@
 package konform
 
 import Rx.Observable
-import com.vg.audio.FastAudioIndex
-import com.vg.audio.IndexEntry
-import com.vg.audio.JTransformsFFT
-import com.vg.audio.SampleRange
-import jdk.Math
-import jdk.highestOneBit
-import jdk.numberOfTrailingZeros
+import com.vg.audio.*
 import org.jcodec.codecs.wav.WavHeader
+import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Float32Array
+import org.khronos.webgl.Float64Array
+import org.khronos.webgl.Int32Array
+import org.w3c.files.Blob
+import org.w3c.files.BlobPropertyBag
 import org.w3c.files.File
-
-
-const val samplesPerBin = 4096
-const val cutoffFreq = 4096
-const val bins = 8
-
-private val fft = JTransformsFFT(samplesPerBin)
 
 @JsName("indexFromMonoSource")
 fun indexFromMonoSource(
@@ -48,28 +40,27 @@ private fun indexFromFile(p: Pair<File, WavHeader>): Observable<Array<IndexEntry
     }.toArray()
 }
 
-
-fun makeIndex(signal: FloatArray, sampleRange: SampleRange, sampleRate: Int): IndexEntry {
-    val fpp = 1f / signal.size * sampleRate
-
-    val highestOneBit = (cutoffFreq / bins).highestOneBit().numberOfTrailingZeros()
-
-    val highscores = FloatArray(bins + 1)
-    val recordPoints = IntArray(bins + 1)
-    val spectrum = fft.spectrum(signal)
-
-    for (i in spectrum.indices) {
-        val mag = spectrum[i]
-        val freq = (fpp * i).toInt()
-        if (freq < 5000) {
-            var bin = freq shr highestOneBit
-            bin = Math.min(bins, bin)
-            if (mag > highscores[bin]) {
-                highscores[bin] = mag
-                recordPoints[bin] = freq
-            }
-        }
-    }
-    val idx = IndexEntry(sampleRange, highscores, recordPoints)
-    return idx
+@JsName("indexToBlob")
+fun indexToBlob(index: FastAudioIndex): Blob {
+    val transferable = index.toTransferable()
+    val header = intArrayOf(0x42424242, 3, transferable.bins, transferable.samplesPerBin, transferable.entries.size).buffer
+    val body = transferable.entries.flatMap { it ->
+        listOf(
+            doubleArrayOf(it.sampleRangeStart, it.sampleRangeEnd).buffer,
+            it.highScores.buffer,
+            it.recordPoints.buffer
+        )
+    }.toTypedArray()
+    val blob = Blob(arrayOf(header, *body), BlobPropertyBag("application/octet-stream"));
+    return blob
 }
+
+
+private val DoubleArray.buffer: ArrayBuffer
+    get() = (this as Float64Array).buffer
+
+private val FloatArray.buffer: ArrayBuffer
+    get() = (this as Float32Array).buffer
+
+private val IntArray.buffer: ArrayBuffer
+    get() = (this as Int32Array).buffer

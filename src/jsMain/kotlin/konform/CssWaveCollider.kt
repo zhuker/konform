@@ -6,6 +6,7 @@ import org.w3c.dom.BEVEL
 import org.w3c.dom.CanvasLineJoin
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
+import kotlin.browser.window
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt

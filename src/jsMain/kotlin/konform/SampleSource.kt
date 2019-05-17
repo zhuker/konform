@@ -12,7 +12,6 @@ import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 class SampleBuffer(val range: SampleRange, val samples: Array<FloatArray>)
-
 interface MonoSource {
     /** SampleBuffer MUST have one and only one Float32Array in SampleBuffer.samples[] even if underlying source is stereo, 5.1, etc .
      * Implementation should decide whether to downmix to mono or extract any one channel.

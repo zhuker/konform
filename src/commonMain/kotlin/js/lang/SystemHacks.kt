@@ -13,12 +13,18 @@ fun Char.Companion.reverseBytes(x: Char): Char {
     TODO("not implemented")
 }
 
-fun Int.Companion.reverseBytes(x: Int): Int {
-    TODO("not implemented")
+fun Int.Companion.reverseBytes(i: Int): Int {
+    return i.ushr(24) or
+            (i shr 8 and 0xFF00) or
+            (i shl 8 and 0xFF0000) or
+            (i shl 24)
 }
 
 fun Long.Companion.reverseBytes(x: Long): Long {
-    TODO("not implemented")
+    var i = x
+    i = i and 0x00ff00ff00ff00ffL shl 8 or (i.ushr(8) and 0x00ff00ff00ff00ffL)
+    return i shl 48 or (i and 0xffff0000L shl 16) or
+            (i.ushr(16) and 0xffff0000L) or i.ushr(48)
 }
 
 inline infix fun Byte.shl(i: Int): Int = this.toInt() shl i
@@ -49,9 +55,11 @@ object System {
     fun gc() {
     }
 
-    fun arraycopy(src: Any?, srcPos: Int,
-                  dest: Any?, destPos: Int,
-                  length: Int) {
+    fun arraycopy(
+        src: Any?, srcPos: Int,
+        dest: Any?, destPos: Int,
+        length: Int
+    ) {
         if (src is ByteArray && dest is ByteArray) {
             src.copyInto(dest, destinationOffset = destPos, startIndex = srcPos, endIndex = srcPos + length)
             return

@@ -17,6 +17,7 @@ object Math {
     inline fun abs(x: Float): Float = kotlin.math.abs(x)
     inline fun ceil(x: Double): Double = kotlin.math.ceil(x)
     inline fun sqrt(x: Double): Double = kotlin.math.sqrt(x)
+    inline fun sqrt(x: Float): Float = kotlin.math.sqrt(x)
     inline fun cos(x: Double): Double = kotlin.math.cos(x)
     inline fun cos(x: Float): Float = kotlin.math.cos(x)
     inline fun sin(x: Double): Double = kotlin.math.sin(x)
