@@ -3,11 +3,12 @@ import jdk.and
 import js.lang.shl
 
 fun toFloatSamples16(bytes: ByteArray, samples: FloatArray): FloatArray {
+    val r = Int24.r
     for (i in 0 until bytes.size step 2) {
         val lo = bytes[i].toInt() and 0xff
         val hi = (bytes[i + 1] shl 8)
         val sample = hi or lo
-        val fsample = Int24.uint16ToFloat(sample)
+        val fsample = sample.toShort() * r
         samples[i shr 1] = fsample
     }
     return samples
@@ -40,12 +41,13 @@ fun toFloatSamples24_32k(bytes: ByteArray, samples: FloatArray): FloatArray {
 
 fun toFloatSamples24(bytes: ByteArray, samples: FloatArray): FloatArray {
     var samplenum = 0
+    val r24 = Int24.r24
     for (i in 0 until bytes.size step 3) {
         val lo = bytes[i] and 0xff
         val mi = (bytes[i + 1] shl 8) and 0xffff
         val hi = (bytes[i + 2] shl 16)
         val sample = hi or mi or lo
-        val fsample = Int24.uint24ToFloat(sample)
+        val fsample = (sample shl 8 shr 8) * r24
         samples[samplenum] = fsample
         samplenum++
     }

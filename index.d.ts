@@ -9,6 +9,7 @@ export namespace com {
 
                 start: Long;
                 end: Long;
+                duration(): Long;
 
                 toString(): string
             }
