@@ -32,7 +32,6 @@ data class ChannelInfo(
     val targetSampleRate: Int
 )
 
-//TODO: https://coderwall.com/p/vmkk6a/how-to-make-the-canvas-not-look-like-crap-on-retina
 class CssWaveCollider(val waveformSource: WaveformSource, val canvas: HTMLCanvasElement) {
     val waveColor = defaultWaveColor
 
@@ -75,7 +74,10 @@ class CssWaveCollider(val waveformSource: WaveformSource, val canvas: HTMLCanvas
     @JsName("sampleToX")
     fun sampleToX(sample: Double): Int = ((sample - (this.lastKnownSampleRange?.start ?: 0L)) / this.uiSpp).toInt()
 
-    fun getDimensions(): Dimension = Dimension(this.canvas.clientWidth, this.canvas.clientHeight)
+    fun getDimensions(): Dimension = Dimension(
+        (this.canvas.clientWidth * devicePixelAspect()).toInt(),
+        (this.canvas.clientHeight * devicePixelAspect()).toInt()
+    )
 
     @JsName("drawWave")
     fun drawWave(sampleRange: SampleRange, selectionRange: SampleRange?) {
@@ -179,10 +181,10 @@ class CssWaveCollider(val waveformSource: WaveformSource, val canvas: HTMLCanvas
 
 
     fun getContext(): CanvasRenderingContext2D {
-        this.canvas.width = (this.canvas.clientWidth)
-        this.canvas.height = (this.canvas.clientHeight)
-//        this.canvas.width = (this.canvas.clientWidth * window.devicePixelRatio).toInt()
-//        this.canvas.height = (this.canvas.clientHeight * window.devicePixelRatio).toInt()
+//        this.canvas.width = (this.canvas.clientWidth)
+//        this.canvas.height = (this.canvas.clientHeight)
+        this.canvas.width = (this.canvas.clientWidth * devicePixelAspect()).toInt()
+        this.canvas.height = (this.canvas.clientHeight * devicePixelAspect()).toInt()
         if (!this.canvas.asDynamic().getContext) {
             console.log("cant draw", this.canvas)
         }
@@ -192,6 +194,13 @@ class CssWaveCollider(val waveformSource: WaveformSource, val canvas: HTMLCanvas
         return ctx
     }
 
+    //https://coderwall.com/p/vmkk6a/how-to-make-the-canvas-not-look-like-crap-on-retina
+    private fun devicePixelAspect(): Double {
+        if (window.asDynamic().devicePixelRatio) {
+            return window.devicePixelRatio;
+        }
+        return 1.0
+    }
 
     private fun drawSelection(wctx: CanvasRenderingContext2D, h: Int, selectionRange: SampleRange) {
         val start = selectionRange.start
