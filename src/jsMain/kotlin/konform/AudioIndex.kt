@@ -17,7 +17,7 @@ fun indexFromMonoSource(
     sampleRate: Int,
     onProgress: (Long) -> Unit = {}
 ): Observable<FastAudioIndex> {
-    return mono.readMono(samplesPerBin * 10, 0).concatMap { sb ->
+    return mono.readMono(samplesPerBin * 32, 0).concatMap { sb ->
         val floats = sb.samples[0]
         val js = floats as Float32Array
         val sz = floats.size

@@ -63,15 +63,3 @@ fun waveDataFromWav(file: Blob, wavHeader: WavHeader, samplesPerPixel: Int): Obs
         FloatWaveData(samplesPerPixel, minmax, SampleRange(0, wavHeader.getSampleCount() - 1))
     }
 }
-
-@JsName("waveDataFromMonoSource")
-fun waveDataFromMonoSource(monoSource: MonoSource, samplesPerPixel: Int): Observable<IWaveData> {
-    return monoSource.readMono(samplesPerPixel, 0).map {
-        val min = it.samples[0].min() ?: 0f
-        val max = it.samples[0].max() ?: 0f
-        MinMax(min, max)
-    }.toArray().map { arr ->
-        val minmax = arr.flatMap { listOf(it.min, it.max) }.toFloatArray()
-        FloatWaveData(samplesPerPixel, minmax, SampleRange(0, monoSource.length - 1))
-    }
-}

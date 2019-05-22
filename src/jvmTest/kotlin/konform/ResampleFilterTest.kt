@@ -1,5 +1,6 @@
 package konform
 
+import org.junit.Assert
 import kotlin.math.roundToLong
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,5 +24,21 @@ class ResampleFilterTest {
         assertEquals(48000L, pos)
     }
 
+    @Test
+    fun zoom() {
+        val startSample = -48000
+        val endSample = 48000
+        val anchorSample = 24000
+        val zoom = 2.0
+
+        val toStart = anchorSample - startSample
+        val toEnd = endSample - anchorSample
+
+        val zoomedEnd = toEnd / zoom
+        val newStart = anchorSample - toStart / zoom
+        val newEnd = anchorSample + zoomedEnd
+        Assert.assertEquals(-12000.0, newStart, 0.1)
+        Assert.assertEquals(36000.0, newEnd, 0.1)
+    }
 
 }
