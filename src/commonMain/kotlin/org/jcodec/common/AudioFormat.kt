@@ -38,20 +38,8 @@ class AudioFormat(sampleRate: Int, val sampleSizeInBits: Int, val channels: Int,
         return samples * (sampleSizeInBits shr 3)
     }
 
-    fun getSampleSizeInBits(): Int {
-        return sampleSizeInBits
-    }
-
-    fun getSampleRate(): Int {
-        return sampleRate
-    }
-
     fun getFrameSize(): Int {
         return frameSize.toInt()
-    }
-
-    fun getChannels(): Int {
-        return channels
     }
 
     companion object {
@@ -146,11 +134,23 @@ class AudioFormat(sampleRate: Int, val sampleSizeInBits: Int, val channels: Int,
         }
 
         fun createAudioFormat(format: AudioFormat): AudioFormat {
-            return AudioFormat(format.sampleRate, format.sampleSizeInBits, format.channels, format.isSigned, format.isBigEndian)
+            return AudioFormat(
+                format.sampleRate,
+                format.sampleSizeInBits,
+                format.channels,
+                format.isSigned,
+                format.isBigEndian
+            )
         }
 
         fun createAudioFormat2(format: AudioFormat, newSampleRate: Int): AudioFormat {
-            val af = AudioFormat(format.sampleRate, format.sampleSizeInBits, format.channels, format.isSigned, format.isBigEndian)
+            val af = AudioFormat(
+                format.sampleRate,
+                format.sampleSizeInBits,
+                format.channels,
+                format.isSigned,
+                format.isBigEndian
+            )
             af.sampleRate = newSampleRate
             return af
         }

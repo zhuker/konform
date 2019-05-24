@@ -73,7 +73,7 @@ fun writev2(index: FastAudioIndex, output: File) {
 }
 
 
-private fun readv3(input: File): FastAudioIndex {
+fun readv3(input: File): FastAudioIndex {
 
     val data = DataInputStream(input.inputStream().buffered())
     val readInt = data.readInt()

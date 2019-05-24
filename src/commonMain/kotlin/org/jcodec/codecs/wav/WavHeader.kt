@@ -75,11 +75,17 @@ class WavHeader(var chunkId: String, var chunkSize: Int, var format: String, var
 
             //            @Throws(IOException::class)
             fun read(bb: ByteBuffer): FmtChunk {
-                val fmtChunk = FmtChunk.get(bb)
+                val fmtChunk = get(bb)
                 val old = bb.order() as ByteOrder
                 try {
                     bb.order(ByteOrder.LITTLE_ENDIAN)
-                    return FmtChunkExtended(fmtChunk, bb.getShort(), bb.getShort(), bb.getInt(), bb.getInt())
+                    return FmtChunkExtended(
+                        fmtChunk,
+                        bb.getShort(),
+                        bb.getShort(),
+                        bb.getInt(),
+                        bb.getInt()
+                    )
                 } finally {
                     bb.order(old)
                 }
@@ -130,8 +136,10 @@ class WavHeader(var chunkId: String, var chunkSize: Int, var format: String, var
                 val old = bb.order() as ByteOrder
                 try {
                     bb.order(ByteOrder.LITTLE_ENDIAN)
-                    return FmtChunk(bb.getShort(), bb.getShort(), bb.getInt(), bb.getInt(), bb.getShort(),
-                            bb.getShort())
+                    return FmtChunk(
+                        bb.getShort(), bb.getShort(), bb.getInt(), bb.getInt(), bb.getShort(),
+                        bb.getShort()
+                    )
                 } finally {
                     bb.order(old)
                 }
@@ -168,7 +176,13 @@ class WavHeader(var chunkId: String, var chunkSize: Int, var format: String, var
     }
 
     fun getFormat(): AudioFormat {
-        return AudioFormat(fmt.sampleRate, fmt.bitsPerSample.toInt(), fmt.numChannels.toInt(), true, false)
+        return AudioFormat(
+            fmt.sampleRate,
+            fmt.bitsPerSample.toInt(),
+            fmt.numChannels.toInt(),
+            true,
+            false
+        )
     }
 
     companion object {
@@ -177,15 +191,19 @@ class WavHeader(var chunkId: String, var chunkSize: Int, var format: String, var
         val WAV_HEADER_SIZE = 44
 
         fun copyWithRate(header: WavHeader, rate: Int): WavHeader {
-            val result = WavHeader(header.chunkId, header.chunkSize, header.format,
-                    copyFmt(header.fmt), header.dataOffset, header.dataSize)
+            val result = WavHeader(
+                header.chunkId, header.chunkSize, header.format,
+                copyFmt(header.fmt), header.dataOffset, header.dataSize
+            )
             result.fmt.sampleRate = rate
             return result
         }
 
         fun copyWithChannels(header: WavHeader, channels: Int): WavHeader {
-            val result = WavHeader(header.chunkId, header.chunkSize, header.format,
-                    copyFmt(header.fmt), header.dataOffset, header.dataSize)
+            val result = WavHeader(
+                header.chunkId, header.chunkSize, header.format,
+                copyFmt(header.fmt), header.dataOffset, header.dataSize
+            )
             result.fmt.numChannels = channels.toShort()
             return result
         }
@@ -194,10 +212,18 @@ class WavHeader(var chunkId: String, var chunkSize: Int, var format: String, var
             var fmt = fmt
             if (fmt is FmtChunkExtended) {
                 val fmtext = fmt
-                fmt = FmtChunkExtended(fmtext, fmtext.cbSize, fmtext.bitsPerCodedSample, fmtext.channelLayout, fmtext.guid)
+                fmt = FmtChunkExtended(
+                    fmtext,
+                    fmtext.cbSize,
+                    fmtext.bitsPerCodedSample,
+                    fmtext.channelLayout,
+                    fmtext.guid
+                )
             } else {
-                fmt = FmtChunk(fmt.audioFormat, fmt.numChannels, fmt.sampleRate, fmt.byteRate, fmt.blockAlign,
-                        fmt.bitsPerSample)
+                fmt = FmtChunk(
+                    fmt.audioFormat, fmt.numChannels, fmt.sampleRate, fmt.byteRate, fmt.blockAlign,
+                    fmt.bitsPerSample
+                )
             }
             return fmt
         }
@@ -221,17 +247,32 @@ class WavHeader(var chunkId: String, var chunkSize: Int, var format: String, var
         }
 
         fun stereo48kWithSamples(samples: Long): WavHeader {
-            return WavHeader("RIFF", 40, "WAVE", FmtChunk(1.toShort(), 2.toShort(), 48000, 48000 * 2 * 16 / 8,
-                    4.toShort(), 16.toShort()), 44, calcDataSize(2, 2, samples))
+            return WavHeader(
+                "RIFF", 40, "WAVE", FmtChunk(
+                    1.toShort(), 2.toShort(), 48000, 48000 * 2 * 16 / 8,
+                    4.toShort(), 16.toShort()
+                ), 44, calcDataSize(2, 2, samples)
+            )
         }
 
         fun mono48k(samples: Long): WavHeader {
-            return WavHeader("RIFF", 40, "WAVE", FmtChunk(1.toShort(), 1.toShort(), 48000, 48000 * 1 * 16 / 8,
-                    2.toShort(), 16.toShort()), 44, calcDataSize(1, 2, samples))
+            return WavHeader(
+                "RIFF", 40, "WAVE", FmtChunk(
+                    1.toShort(), 1.toShort(), 48000, 48000 * 1 * 16 / 8,
+                    2.toShort(), 16.toShort()
+                ), 44, calcDataSize(1, 2, samples)
+            )
         }
 
         fun emptyWavHeader(): WavHeader {
-            return WavHeader("RIFF", 40, "WAVE", newFmtChunk(), 44, 0)
+            return WavHeader(
+                "RIFF",
+                40,
+                "WAVE",
+                newFmtChunk(),
+                44,
+                0
+            )
         }
 
         private fun newFmtChunk(): FmtChunk {
@@ -331,14 +372,14 @@ class WavHeader(var chunkId: String, var chunkSize: Int, var format: String, var
             val w = emptyWavHeader()
             w.dataSize = size.toLong()
             val fmt = newFmtChunk()
-            val bitsPerSample = af.getSampleSizeInBits()
+            val bitsPerSample = af.sampleSizeInBits
             val bytesPerSample = bitsPerSample / 8
-            val sampleRate = af.getSampleRate() as Int
+            val sampleRate = af.sampleRate as Int
             w.fmt.bitsPerSample = bitsPerSample.toShort()
             w.fmt.blockAlign = af.getFrameSize().toShort()
             w.fmt.byteRate = af.getFrameRate() as Int * af.getFrameSize()
-            w.fmt.numChannels = af.getChannels().toShort()
-            w.fmt.sampleRate = af.getSampleRate()
+            w.fmt.numChannels = af.channels.toShort()
+            w.fmt.sampleRate = af.sampleRate
             return w
         }
     }

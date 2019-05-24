@@ -1,6 +1,5 @@
 package konform
 
-import js.io.IOException
 import js.nio.ByteBuffer
 import org.jcodec.common.io.NIOUtils
 import org.jcodec.common.io.SeekableByteChannel
@@ -15,7 +14,8 @@ import kotlin.math.min
  *
  * @author The JCodec project
  */
-class ByteBufferSeekableByteChannel(private val backing: ByteBuffer, private var contentLength: Int) : SeekableByteChannel {
+class ByteBufferSeekableByteChannel(private val backing: ByteBuffer, private var contentLength: Int) :
+    SeekableByteChannel {
     private var isOpen = true
     override fun isOpen(): Boolean {
         return isOpen

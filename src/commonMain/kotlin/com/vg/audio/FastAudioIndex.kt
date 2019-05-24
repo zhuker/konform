@@ -284,7 +284,7 @@ const val bins = 8
 
 private val fft = JTransformsFFT(samplesPerBin)
 
-fun makeIndex(signal: FloatArray, sampleRange: SampleRange, sampleRate: Int): IndexEntry {
+fun fastmakeIndex(signal: FloatArray, sampleRange: SampleRange, sampleRate: Int): IndexEntry {
 //    val fpp = 1f / signal.size * sampleRate
 
     val highestOneBit = (cutoffFreq / bins).highestOneBit().numberOfTrailingZeros()
@@ -303,6 +303,31 @@ fun makeIndex(signal: FloatArray, sampleRange: SampleRange, sampleRate: Int): In
         if (mag > highscores[bin]) {
             highscores[bin] = mag
             recordPoints[bin] = freq
+        }
+    }
+    val idx = IndexEntry(sampleRange, highscores, recordPoints)
+    return idx
+}
+
+fun makeIndex(signal: FloatArray, sampleRange: SampleRange, sampleRate: Int): IndexEntry {
+    val fpp = 1f / signal.size * sampleRate
+
+    val highestOneBit = (cutoffFreq / bins).highestOneBit().numberOfTrailingZeros()
+
+    val highscores = FloatArray(bins + 1)
+    val recordPoints = IntArray(bins + 1)
+    val spectrum = fft.spectrum(signal)
+
+    for (i in spectrum.indices) {
+        val mag = spectrum[i]
+        val freq = (fpp * i).toInt()
+        if (freq < 5000) {
+            var bin = freq shr highestOneBit
+            bin = Math.min(bins, bin)
+            if (mag > highscores[bin]) {
+                highscores[bin] = mag
+                recordPoints[bin] = freq
+            }
         }
     }
     val idx = IndexEntry(sampleRange, highscores, recordPoints)

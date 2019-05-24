@@ -7,7 +7,14 @@ import kotlin.math.min
 
 object NIOUtils {
     fun readString(buffer: ByteBuffer, len: Int): String {
-        return stringFromBytes(toArray(read(buffer, len)))
+        return stringFromBytes(
+            toArray(
+                read(
+                    buffer,
+                    len
+                )
+            )
+        )
     }
 
     private fun stringFromBytes(bytes: ByteArray): String {
